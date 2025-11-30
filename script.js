@@ -1,8 +1,8 @@
-/* script.js - النسخة المحدثة */
+/* script.js — النسخة النهائية والمكتملة */
+
 let merged = [];
 let branchInfo = [];
 
-// تحميل معلومات الفروع من JSON
 fetch("information.json")
    .then((r) => r.json())
    .then((data) => {
@@ -12,7 +12,6 @@ fetch("information.json")
 
 document.getElementById("analyze-btn").addEventListener("click", () => {
    const text = document.getElementById("visa-text").value;
-
    if (!text.trim()) {
       alert("الرجاء إدخال محتوى التقرير");
       return;
@@ -28,7 +27,7 @@ document.getElementById("analyze-btn").addEventListener("click", () => {
 });
 
 /* ======================
-   دالة تحليل التقرير (محسّنة — تتعامل مع Total في سطور متفرقة)
+   تحليل تقرير البنك (كما كان)
    ====================== */
 function parseMerchantReport(text) {
    const terminals = [];
@@ -49,9 +48,7 @@ function parseMerchantReport(text) {
       for (let i = 0; i < lines.length; i++) {
          const line = lines[i];
 
-         // استخراج بطاقة وآخر أربع أرقام
          const cardMatch = line.match(/\*{6}(\d{4})/);
-         // استخراج القيمة net من صف العمليات (pattern like "5.554-0.068 5.625")
          const netMatch = line.match(/\b\d+\.\d+-\d+\.\d+\s+(\d+\.\d+)\b/);
 
          if (cardMatch && netMatch) {
@@ -61,12 +58,10 @@ function parseMerchantReport(text) {
             });
          }
 
-         // البحث الذكي عن كتلة Total (تتعامل مع أسطر بعد Total)
          if (/^Total\b/i.test(line) || /^Total\s*/i.test(line)) {
             let collectedNumbers = [];
             let foundNetExplicit = null;
 
-            // نجمع حتى 6 أسطر بعد كلمة Total (مرنة)
             for (let k = i; k < i + 7 && k < lines.length; k++) {
                const nums = lines[k].match(/(\d+\.\d+)/g);
                if (nums) collectedNumbers.push(...nums);
@@ -77,19 +72,12 @@ function parseMerchantReport(text) {
 
             if (collectedNumbers.length >= 2) {
                const gross = parseFloat(collectedNumbers[0]);
-               // محاولات متعددة لاستخراج net:
-               let net =
-                  foundNetExplicit ??
-                  parseFloat(collectedNumbers[collectedNumbers.length - 1]);
-
-               // تجنّب حالات التقاط أرقام صغيرة جداً (مثلاً 3.390 كقيمة مُنتقلة)
-               // نضمن أن net ليست عدداً صغيراً جداً مقارنةً بـ gross
+               let net = foundNetExplicit ?? parseFloat(collectedNumbers[collectedNumbers.length - 1]);
                if (gross && net && net <= gross * 1.2 && net >= gross * 0.2) {
                   totalGross = gross;
                   totalNet = net;
                }
             } else if (collectedNumbers.length === 1 && foundNetExplicit) {
-               // حالة نادرة: gross في رقم واحد في مكان آخر، net مكتوب صراحة
                totalNet = foundNetExplicit;
             }
          }
@@ -106,7 +94,7 @@ function parseMerchantReport(text) {
 }
 
 /* ======================
-   دمج المحطات (لا نغيّر منطق الحساب السابق)
+   دمج الترمينالات
    ====================== */
 function mergeTerminals(terminals) {
    const merged = {};
@@ -127,23 +115,11 @@ function mergeTerminals(terminals) {
       if (item.total?.net) merged[id].total.net = item.total.net;
    });
 
-   // إذا أردت حساب يدوي كاحتياط: لا نضعه تلقائياً (حتى لا يعطل وجود إجماليات رسمية)
-   // لكن إن لم توجد إجماليات في التقرير يمكنك تفعيل السطرين التاليين يدوياً:
-   /*
-  Object.values(merged).forEach((item) => {
-    if ((!item.total.gross || !item.total.net) && item.transactions.length) {
-      const sum = item.transactions.reduce((s, t) => s + t.amount, 0);
-      item.total.gross = item.total.gross || parseFloat(sum.toFixed(3));
-      item.total.net = item.total.net || parseFloat(sum.toFixed(3));
-    }
-  });
-  */
-
    return Object.values(merged);
 }
 
 /* ======================
-   عرض النتائج (جدول الفروع) + تفاصيل منسدلة
+   عرض جدول الإجماليات
    ====================== */
 function renderTotalsTable(data) {
    const tbody = document.getElementById("totals-body");
@@ -151,29 +127,23 @@ function renderTotalsTable(data) {
 
    data.forEach((item) => {
       const id = item.terminalId;
-      const gross =
-         item.total.gross != null ? item.total.gross.toFixed(3) : "-";
+      const gross = item.total.gross != null ? item.total.gross.toFixed(3) : "-";
       const net = item.total.net != null ? item.total.net.toFixed(3) : "-";
-      const diff =
-         item.total.gross != null && item.total.net != null
-            ? (item.total.gross - item.total.net).toFixed(3)
-            : "-";
+      const diff = item.total.gross != null && item.total.net != null ? (item.total.gross - item.total.net).toFixed(3) : "-";
 
-      const branch = branchInfo.find(
-         (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
-      ) || {
-         name: "غير معروف",
-         "account id": "-",
-         "bank account": "-",
-      };
+      const branch =
+         branchInfo.find((b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)) || {
+            name: "غير معروف",
+            "account id": "-",
+            "bank account": "-",
+         };
 
       const trMain = document.createElement("tr");
       trMain.innerHTML = `
       <td>${branch.name}</td>
       <td>${id}</td>
       <td>${branch["account id"]}</td>
-      <td><button class="toggle-btn">⬇️</button></td>
-    `;
+      <td><button class="toggle-btn">⬇️</button></td>`;
 
       const trDetails = document.createElement("tr");
       trDetails.classList.add("details-row");
@@ -192,12 +162,12 @@ function renderTotalsTable(data) {
           <td>52121 - مصاريف عمولة فيزا كارد (عمان)</td>
         </tr>
         <tr>
+          <td>0</td>
           <td>${gross}</td>
           <td>${branch["account id"]}</td>
-          <td>${branch.name}</td>
         </tr>
-      </table>
-    `;
+      </table>`;
+
       const tdDetails = document.createElement("td");
       tdDetails.colSpan = 4;
       tdDetails.innerHTML = detailsTable;
@@ -216,17 +186,22 @@ function renderTotalsTable(data) {
 }
 
 /* ======================
-   تعبئة قائمة Terminal select - نعرض اسم الفرع بدل الرقم
+   ملء قائمة الاختيار (يضاف خيار ALL)
    ====================== */
 function populateTerminalSelect(data) {
    const select = document.getElementById("terminal-select");
    select.innerHTML = "";
+
+   const allOpt = document.createElement("option");
+   allOpt.value = "ALL";
+   allOpt.textContent = "الكل — (جميع الفروع)";
+   select.appendChild(allOpt);
+
    data.forEach((item) => {
       const id = item.terminalId;
-      const branch =
-         branchInfo.find(
-            (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
-         ) || {};
+      const branch = branchInfo.find(
+         (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
+      ) || {};
       const text = branch.name ? `${branch.name} — (${id})` : id;
       const opt = document.createElement("option");
       opt.value = id;
@@ -236,34 +211,32 @@ function populateTerminalSelect(data) {
 }
 
 /* ======================
-   قراءة الفواتير (robust) - تتعرف على رقم الفاتورة، القيمة، ورقم البطاقة
-   الصيغة المقبولة: `202511185 9 رقم البطاقة : 8081`
-   أو تفصيلًا: id وamount على سطر، و"رقم البطاقة" في نفس السطر أو بالأسطر التالية
+   قراءة الفواتير (مُحسّنة) — يدعم branchName و Card Number (عربي/إنجليزي)
+   الصيغ المقبولة في سطر واحد:
+   1) 202518926  Al amerat  1.75  Card Number : 3617
+   2) 202524073  22.225  رقم البطاقة : 2139    (بدون اسم فرع)
+   أو نماذج مفككة (id amount في سطر واحد)
    ====================== */
 function parseInvoices(text) {
-   const lines = text
-      .replace(/\r/g, "")
-      .split("\n")
-      .map((l) => l.trim());
+   const lines = text.replace(/\r/g, "").split("\n").map((l) => l.trim());
    const invoices = [];
 
-   // 1) نمط كامل في سطر واحد:
    const singleLineRegex =
-      /^(\d{6,})\s+([\d.]+)\s*(?:[^\d\n]*?رقم البطاقة\s*[:：]?\s*(\d{3,4}))?/i;
+      /^(\d{6,})\s+(.+?)\s+([\d.]+)\s*(?:[^\d\n]*?(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4}))?/i;
 
    for (let i = 0; i < lines.length; i++) {
       const L = lines[i];
       let m = L.match(singleLineRegex);
       if (m) {
          const invId = m[1];
-         const amount = parseFloat(m[2]);
-         const card = m[3] ? m[3] : null;
+         const branchName = m[2] ? m[2].trim() : null;
+         const amount = parseFloat(m[3]);
+         const card = m[4] ? m[4] : null;
 
-         // إذا لم يوجد رقم البطاقة، نبحث في الأسطر التالية القليلة عن "رقم البطاقة"
          let cardSearching = card;
          if (!cardSearching) {
             for (let k = i + 1; k <= i + 3 && k < lines.length; k++) {
-               const m2 = lines[k].match(/رقم البطاقة\s*[:：]?\s*(\d{3,4})/i);
+               const m2 = lines[k].match(/(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4})/i);
                if (m2) {
                   cardSearching = m2[1];
                   break;
@@ -271,37 +244,35 @@ function parseInvoices(text) {
             }
          }
 
-         invoices.push({
-            invoiceId: invId,
-            amount,
-            cardNumber: cardSearching,
-         });
+         invoices.push({ invoiceId: invId, branchName, amount, cardNumber: cardSearching });
          continue;
       }
 
-      // 2) نمط مفكك: سطر يحتمل أن يكون "id amount" ولكن بدون "رقم البطاقة" في نفس السطر
+      // نمط مفكك: id + amount فقط (بدون اسم الفرع)
       const alt = L.match(/^(\d{6,})\s+([\d.]+)\s*$/);
       if (alt) {
          const invId = alt[1];
          const amount = parseFloat(alt[2]);
-         // جرب العثور على رقم البطاقة في الأسطر التالية
          let cardFound = null;
+
          for (let k = i + 1; k <= i + 4 && k < lines.length; k++) {
-            const m2 = lines[k].match(/رقم البطاقة\s*[:：]?\s*(\d{3,4})/i);
+            const m2 = lines[k].match(/(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4})/i);
             if (m2) {
                cardFound = m2[1];
                break;
             }
          }
+
          invoices.push({
             invoiceId: invId,
+            branchName: null,
             amount,
             cardNumber: cardFound,
          });
       }
    }
 
-   // أخيراً: إذا لم نقرأ أي فاتورة، حاول استخراج أي أزواج رقمية قد تكون مدفونة
+   // محاولات احتياطية لاستخراج أزواج رقمية إن لم يتم التقاط أي فاتورة
    if (invoices.length === 0) {
       const allMatches = text.match(/(\d{6,})\s+([\d.]+)/g);
       if (allMatches) {
@@ -309,6 +280,7 @@ function parseInvoices(text) {
             const parts = t.split(/\s+/);
             invoices.push({
                invoiceId: parts[0],
+               branchName: null,
                amount: parseFloat(parts[1]),
                cardNumber: null,
             });
@@ -320,8 +292,8 @@ function parseInvoices(text) {
 }
 
 /* ======================
-   مقارنة الفواتير بالسجلات - مع مراعاة فلاتر العرض بدقة
-   النتيجة: جدول منظم ثم زر لعرض "السند" لكل صف
+   المقارنة: فواتير مقابل سجلات
+   نتائج مرتبة وتصنيفات
    ====================== */
 function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
    const results = [];
@@ -422,7 +394,7 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
       });
    }
 
-   // ترتيب النتائج: مطابقة تامة أولًا ثم الباقي (اختياري)
+   // ترتيب النتائج: مطابقة تامة أولًا ثم الباقي
    results.sort((a, b) => {
       const rank = {
          "مطابقة تامة ✅": 0,
@@ -438,15 +410,15 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
 }
 
 /* ======================
-   عرض نتائج المقارنة كجدول (الهيكل المطلوب)
-   الأعمدة: النوع - رقم البطاقة - القيمة في التقرير - القيمة في الفواتير - اظهار السند
+   عرض نتائج المقارنة (لا تمسح الحاوية داخليًا)
    ====================== */
 function renderCompareResults(results, records, invoices, branchAccountId) {
    const container = document.getElementById("compare-results");
-   container.innerHTML = "";
-
+   // لا نمسح الحاوية هنا؛ قرار المسح يتم في المتحكم (زر المقارنة)
    if (!results.length) {
-      container.innerHTML = "<p>لا توجد نتائج للمقارنة.</p>";
+      const p = document.createElement("p");
+      p.textContent = "لا توجد نتائج للمقارنة.";
+      container.appendChild(p);
       return;
    }
 
@@ -493,7 +465,6 @@ function renderCompareResults(results, records, invoices, branchAccountId) {
       else if (rec && !inv) diff = parseFloat(rec.amount.toFixed(3));
       else if (!rec && inv) diff = -parseFloat(inv.amount.toFixed(3));
 
-      // نص البيان: ثابت مع استبدال أرقام الفاتورة والبطاقة
       const invId = inv
          ? inv.invoiceId
          : res.invoiceIndex != null
@@ -502,9 +473,6 @@ function renderCompareResults(results, records, invoices, branchAccountId) {
       const cardNum = card || (inv ? inv.cardNumber : "");
       const acct = branchAccountId || "-";
 
-      // بناء جدول السند داخل الـ panel
-      // صف 1: diff ، 0 ، account id ، بيان
-      // صف 2: 0 ، diff ، account id ، بيان ثانِ (زيادة مبيعات عمان)
       const panelTable = document.createElement("table");
       panelTable.style.width = "100%";
       panelTable.innerHTML = `
@@ -515,22 +483,17 @@ function renderCompareResults(results, records, invoices, branchAccountId) {
         <td>${diff != null ? diff : "-"}</td>
         <td>0</td>
         <td>${acct}</td>
-        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${
-           cardNum || "-"
-        } رقم الفاتورة ${invId || "-"}</td>
+        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${cardNum || "-"} رقم الفاتورة ${invId || "-"}</td>
       </tr>
       <tr>
         <td>0</td>
         <td>${diff != null ? diff : "-"}</td>
         <td>زيادة مبيعات عمان</td>
-        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${
-           cardNum || "-"
-        } رقم الفاتورة ${invId || "-"}</td>
+        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${cardNum || "-"} رقم الفاتورة ${invId || "-"}</td>
       </tr>
     `;
       panel.appendChild(panelTable);
 
-      // سلوك الزر
       voucherBtn.addEventListener("click", () => {
          const open = panel.classList.toggle("open");
          voucherBtn.textContent = open ? "إخفاء السند ⬆" : "عرض السند ⬇";
@@ -545,16 +508,15 @@ function renderCompareResults(results, records, invoices, branchAccountId) {
 }
 
 /* ======================
-   زر المقارنة (التكامل)
+   زر المقارنة — يدعم اختيار ALL
    ====================== */
 document.getElementById("compare-btn").addEventListener("click", () => {
    const selectedId = document.getElementById("terminal-select").value;
    const invoiceText = document.getElementById("invoice-input").value;
    const invoices = parseInvoices(invoiceText);
 
-   const terminal = merged.find((t) => t.terminalId === selectedId);
-   if (!terminal) {
-      alert("الرجاء اختيار Terminal صحيح");
+   if (!merged.length) {
+      alert("الرجاء أولاً تحليل تقرير الفيزا (Analyze) لتحميل السجلات.");
       return;
    }
 
@@ -566,22 +528,70 @@ document.getElementById("compare-btn").addEventListener("click", () => {
       showRecordOnly: document.getElementById("showRecordOnly").checked,
    };
 
-   // ابحث عن حساب الفرع لاستخدامه في السندات
+   const container = document.getElementById("compare-results");
+   container.innerHTML = ""; // نمسح مرة واحدة عند بدء العرض
+
+   // حالة اختيار "الكل" -> نعرض نتائج كل التيرمينالات متتابعة
+   if (selectedId === "ALL") {
+      merged.forEach((terminal) => {
+         const id = terminal.terminalId;
+         const branch = branchInfo.find(
+            (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
+         );
+         const branchName = branch ? branch.name : null;
+
+         const title = document.createElement("h3");
+         title.textContent = branchName ? `${branchName} — (${id})` : `غير معروف — (${id})`;
+         container.appendChild(title);
+
+         // فلترة الفواتير: نأخذ فقط الفواتير التي لديها branchName مطابق حرفيًا لاسم الفرع
+         const filteredInvoices = invoices.filter(
+            (inv) => inv.branchName && branchName && inv.branchName === branchName
+         );
+
+         if (filteredInvoices.length === 0) {
+            const p = document.createElement("p");
+            p.textContent = "لا توجد فواتير مطابقة حرفيًا لهذا الفرع.";
+            container.appendChild(p);
+            return; // ننتقل للفرع التالي
+         }
+
+         const results = compareInvoicesToRecords(
+            filteredInvoices,
+            terminal.transactions,
+            options,
+            branch ? branch["account id"] : "-"
+         );
+
+         renderCompareResults(results, terminal.transactions, filteredInvoices, branch ? branch["account id"] : "-");
+      });
+
+      return;
+   }
+
+   // الحالة الاعتيادية: اختيار Terminal واحد
+   const terminal = merged.find((t) => t.terminalId === selectedId);
+   if (!terminal) {
+      alert("الرجاء اختيار Terminal صحيح");
+      return;
+   }
+
    const branch = branchInfo.find(
       (b) => String(b["Terminal ID"]).slice(-4) === String(selectedId).slice(-4)
    );
    const branchAccountId = branch ? branch["account id"] : "-";
 
+   // فلترة الفواتير: لو الفاتورة تحمل branchName نأخذها فقط لو تطابق حرفيًا اسم الفرع المختار.
+   const filteredInvoices = invoices.filter((inv) => {
+      if (!inv.branchName) return true; // فواتير بدون اسم تُعتبر عامة في حالة اختيار فرع واحد
+      return branch && inv.branchName === branch.name;
+   });
+
    const results = compareInvoicesToRecords(
-      invoices,
+      filteredInvoices,
       terminal.transactions,
       options,
       branchAccountId
    );
-   renderCompareResults(
-      results,
-      terminal.transactions,
-      invoices,
-      branchAccountId
-   );
+   renderCompareResults(results, terminal.transactions, filteredInvoices, branchAccountId);
 });

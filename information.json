@@ -2,129 +2,129 @@
   "ورقة1": [
     {
       "Terminal ID": "20035149",
-      "name": "سيتي سنتر القرم",
+      "name": "City Centre Qurum",
       "account id": 133223,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01340256",
-      "name": "نزوى",
+      "name": "Nazwa",
       "account id": 133212,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01340264",
-      "name": "التنين 2",
+      "name": "Golden Dragon Mall (Br2)",
       "account id": 133202,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01340272",
-      "name": "السعادة",
+      "name": "Al saada BR",
       "account id": 133211,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01340280",
-      "name": "السيب 2",
+      "name": "AL SEEB (Br2)",
       "account id": 133204,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01340298",
-      "name": "صحار 2",
+      "name": "Souhar (Br2)",
       "account id": 133206,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01399377",
-      "name": "الخوض",
+      "name": "Alkhawd",
       "account id": 133213,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01450618",
-      "name": "الحيل 2",
+      "name": "Elheil (Br2)",
       "account id": 133215,
-      "bank account": "بنك الأهلي / مجموعة الايوبي"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "20045522",
-      "name": "افينو مول",
+      "name": "Avenues Mall",
       "account id": 133218,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "20082624",
-      "name": "سيتي سنتر صحار",
+      "name": "City Centre Suhar",
       "account id": 133221,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "20082632",
-      "name": "عمان مول",
+      "name": "Mall of oman",
       "account id": 133222,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "01336858",
-      "name": "الحيل 1",
+      "name": "Elheil (Br1)",
       "account id": 133207,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "01336866",
-      "name": "صحار 1",
+      "name": "Souhar (Br1)",
       "account id": 133205,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "01336874",
-      "name": "التنين 1",
+      "name": "Golden Dragon Mall (Br1)",
       "account id": 133201,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "01336882",
-      "name": "شارع السلام",
+      "name": "Alsalm St BR",
       "account id": 133210,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
-      "Terminal ID": "20336890",
-      "name": "مويلح",
+      "Terminal ID": "20017988",
+      "name": "City Center Al Mawaleh",
       "account id": 133224,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13217"
     },
     {
       "Terminal ID": "01663954",
-      "name": "مسقط مول",
+      "name": "Muscat Mall",
       "account id": 133216,
-      "bank account": "بنك الأهلي / همسات العالمية للاستثمار"
+      "bank account": "13216"
     },
     {
       "Terminal ID": "20080727",
-      "name": "السيب3",
+      "name": "Al SEEB (Br3)",
       "account id": 133217,
-      "bank account": "بنك الأهلي / الفن الشامي"
+      "bank account": "13219"
     },
     {
       "Terminal ID": "20080735",
-      "name": "العامرات",
+      "name": "Al amerat",
       "account id": 133219,
-      "bank account": "بنك الأهلي / الفن الشامي"
+      "bank account": "13219"
     },
     {
       "Terminal ID": "20080743",
-      "name": "التنين 3",
+      "name": "Golden Dragon Mall (Br3)",
       "account id": 133220,
-      "bank account": "بنك الأهلي / الفن الشامي"
+      "bank account": "13219"
     },
     {
       "Terminal ID": "20080750",
-      "name": "صور",
+      "name": "Sur (Br1)",
       "account id": 133209,
-      "bank account": "بنك الأهلي / الفن الشامي"
+      "bank account": "13219"
     }
   ]
 }
