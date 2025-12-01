@@ -184,7 +184,7 @@ function generateVoucherHTML(err) {
                   52121
                </td>
                <td>
-                  نقص في قيمةالكشف رقم البطاقة ${err.cardNumber} السحب صحيح ورقم الفاتورة ${err.invoiceId}
+               نقص بالكشف رقم البطاقة ${err.cardNumber} السحب صحيح بالورقة فاتورة رقم ${err.invoiceId}
                </td>
             </tr>
             <tr>
