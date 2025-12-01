@@ -57,7 +57,7 @@ function renderErrorsGrouped() {
       const cards = grouped[branch].map((e) => e.cardNumber).filter(Boolean);
 
       const msg =
-         `بعتلي أرقام البطاقات الخاصة بفرع ${branch}:\n\n` +
+         `بعتلي أرقام بطاقات مبيعات أمس الي تحت فرع ${branch}:\n\n` +
          cards.map((c) => `• ${c}`).join("\n");
 
       const whatsappBtn = document.createElement("a");
