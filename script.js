@@ -72,7 +72,9 @@ function parseMerchantReport(text) {
 
             if (collectedNumbers.length >= 2) {
                const gross = parseFloat(collectedNumbers[0]);
-               let net = foundNetExplicit ?? parseFloat(collectedNumbers[collectedNumbers.length - 1]);
+               let net =
+                  foundNetExplicit ??
+                  parseFloat(collectedNumbers[collectedNumbers.length - 1]);
                if (gross && net && net <= gross * 1.2 && net >= gross * 0.2) {
                   totalGross = gross;
                   totalNet = net;
@@ -127,16 +129,21 @@ function renderTotalsTable(data) {
 
    data.forEach((item) => {
       const id = item.terminalId;
-      const gross = item.total.gross != null ? item.total.gross.toFixed(3) : "-";
+      const gross =
+         item.total.gross != null ? item.total.gross.toFixed(3) : "-";
       const net = item.total.net != null ? item.total.net.toFixed(3) : "-";
-      const diff = item.total.gross != null && item.total.net != null ? (item.total.gross - item.total.net).toFixed(3) : "-";
+      const diff =
+         item.total.gross != null && item.total.net != null
+            ? (item.total.gross - item.total.net).toFixed(3)
+            : "-";
 
-      const branch =
-         branchInfo.find((b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)) || {
-            name: "غير معروف",
-            "account id": "-",
-            "bank account": "-",
-         };
+      const branch = branchInfo.find(
+         (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
+      ) || {
+         name: "غير معروف",
+         "account id": "-",
+         "bank account": "-",
+      };
 
       const trMain = document.createElement("tr");
       trMain.innerHTML = `
@@ -199,9 +206,10 @@ function populateTerminalSelect(data) {
 
    data.forEach((item) => {
       const id = item.terminalId;
-      const branch = branchInfo.find(
-         (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
-      ) || {};
+      const branch =
+         branchInfo.find(
+            (b) => String(b["Terminal ID"]).slice(-4) === String(id).slice(-4)
+         ) || {};
       const text = branch.name ? `${branch.name} — (${id})` : id;
       const opt = document.createElement("option");
       opt.value = id;
@@ -218,7 +226,10 @@ function populateTerminalSelect(data) {
    أو نماذج مفككة (id amount في سطر واحد)
    ====================== */
 function parseInvoices(text) {
-   const lines = text.replace(/\r/g, "").split("\n").map((l) => l.trim());
+   const lines = text
+      .replace(/\r/g, "")
+      .split("\n")
+      .map((l) => l.trim());
    const invoices = [];
 
    const singleLineRegex =
@@ -236,7 +247,9 @@ function parseInvoices(text) {
          let cardSearching = card;
          if (!cardSearching) {
             for (let k = i + 1; k <= i + 3 && k < lines.length; k++) {
-               const m2 = lines[k].match(/(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4})/i);
+               const m2 = lines[k].match(
+                  /(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4})/i
+               );
                if (m2) {
                   cardSearching = m2[1];
                   break;
@@ -244,7 +257,12 @@ function parseInvoices(text) {
             }
          }
 
-         invoices.push({ invoiceId: invId, branchName, amount, cardNumber: cardSearching });
+         invoices.push({
+            invoiceId: invId,
+            branchName,
+            amount,
+            cardNumber: cardSearching,
+         });
          continue;
       }
 
@@ -256,7 +274,9 @@ function parseInvoices(text) {
          let cardFound = null;
 
          for (let k = i + 1; k <= i + 4 && k < lines.length; k++) {
-            const m2 = lines[k].match(/(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4})/i);
+            const m2 = lines[k].match(
+               /(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4})/i
+            );
             if (m2) {
                cardFound = m2[1];
                break;
@@ -412,7 +432,7 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
 /* ======================
    عرض نتائج المقارنة (لا تمسح الحاوية داخليًا)
    ====================== */
-function renderCompareResults(results, records, invoices, branchAccountId) {
+function renderCompareResults(results, records, invoices, branchAccountId, branchName) {
    const container = document.getElementById("compare-results");
    // لا نمسح الحاوية هنا؛ قرار المسح يتم في المتحكم (زر المقارنة)
    if (!results.length) {
@@ -450,11 +470,34 @@ function renderCompareResults(results, records, invoices, branchAccountId) {
     `;
 
       // عمود "اظهار السند" -> زر يفتح لوحة تحتوي جدول السند
+      // const tdVoucher = tr.querySelector("td:last-child");
+      // const voucherBtn = document.createElement("button");
+      // voucherBtn.className = "voucher-btn";
+      // voucherBtn.textContent = "عرض السند ⬇";
+      // tdVoucher.appendChild(voucherBtn);
+
       const tdVoucher = tr.querySelector("td:last-child");
-      const voucherBtn = document.createElement("button");
-      voucherBtn.className = "voucher-btn";
-      voucherBtn.textContent = "عرض السند ⬇";
-      tdVoucher.appendChild(voucherBtn);
+
+      const saveBtn = document.createElement("button");
+      saveBtn.className = "save-error-btn";
+      saveBtn.textContent = "تسجيل الخطأ";
+
+      saveBtn.addEventListener("click", () => {
+         addErrorRecord({
+            invoiceValue: invoiceValue,
+            reportValue: reportValue,
+            invoiceId: invId,
+            cardNumber: cardNum,
+            branchAccountId: branchAccountId || 0,
+            branchName: branchName || "-",
+            errorType: 0, // القيمة الافتراضية
+         });
+
+         saveBtn.textContent = "✔ تم التخزين";
+         saveBtn.disabled = true;
+      });
+
+      tdVoucher.appendChild(saveBtn);
 
       const panel = document.createElement("div");
       panel.className = "voucher-panel";
@@ -483,21 +526,25 @@ function renderCompareResults(results, records, invoices, branchAccountId) {
         <td>${diff != null ? diff : "-"}</td>
         <td>0</td>
         <td>${acct}</td>
-        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${cardNum || "-"} رقم الفاتورة ${invId || "-"}</td>
+        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${
+           cardNum || "-"
+        } رقم الفاتورة ${invId || "-"}</td>
       </tr>
       <tr>
         <td>0</td>
         <td>${diff != null ? diff : "-"}</td>
         <td>زيادة مبيعات عمان</td>
-        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${cardNum || "-"} رقم الفاتورة ${invId || "-"}</td>
+        <td>زيادة سحب بالفيزا بالكشف رقم البطاقة ${
+           cardNum || "-"
+        } رقم الفاتورة ${invId || "-"}</td>
       </tr>
     `;
       panel.appendChild(panelTable);
 
-      voucherBtn.addEventListener("click", () => {
-         const open = panel.classList.toggle("open");
-         voucherBtn.textContent = open ? "إخفاء السند ⬆" : "عرض السند ⬇";
-      });
+      // voucherBtn.addEventListener("click", () => {
+      //    const open = panel.classList.toggle("open");
+      //    voucherBtn.textContent = open ? "إخفاء السند ⬆" : "عرض السند ⬇";
+      // });
 
       tdVoucher.appendChild(panel);
       tbody.appendChild(tr);
@@ -541,12 +588,15 @@ document.getElementById("compare-btn").addEventListener("click", () => {
          const branchName = branch ? branch.name : null;
 
          const title = document.createElement("h3");
-         title.textContent = branchName ? `${branchName} — (${id})` : `غير معروف — (${id})`;
+         title.textContent = branchName
+            ? `${branchName} — (${id})`
+            : `غير معروف — (${id})`;
          container.appendChild(title);
 
          // فلترة الفواتير: نأخذ فقط الفواتير التي لديها branchName مطابق حرفيًا لاسم الفرع
          const filteredInvoices = invoices.filter(
-            (inv) => inv.branchName && branchName && inv.branchName === branchName
+            (inv) =>
+               inv.branchName && branchName && inv.branchName === branchName
          );
 
          if (filteredInvoices.length === 0) {
@@ -563,7 +613,13 @@ document.getElementById("compare-btn").addEventListener("click", () => {
             branch ? branch["account id"] : "-"
          );
 
-         renderCompareResults(results, terminal.transactions, filteredInvoices, branch ? branch["account id"] : "-");
+         renderCompareResults(
+            results,
+            terminal.transactions,
+            filteredInvoices,
+            branch ? branch["account id"] : "-",
+            branch ? branch.name : "-"
+         );
       });
 
       return;
@@ -593,5 +649,12 @@ document.getElementById("compare-btn").addEventListener("click", () => {
       options,
       branchAccountId
    );
-   renderCompareResults(results, terminal.transactions, filteredInvoices, branchAccountId);
+renderCompareResults(
+   results,
+   terminal.transactions,
+   filteredInvoices,
+   branchAccountId,
+   branch ? branch.name : "-"
+);
+
 });
