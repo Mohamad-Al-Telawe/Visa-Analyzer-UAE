@@ -166,7 +166,7 @@ function renderTotalsTable(data) {
         <tr>
           <td>${diff}</td>
           <td>0</td>
-          <td>52121 - مصاريف عمولة فيزا كارد (عمان)</td>
+          <td>52121</td>
         </tr>
         <tr>
           <td>0</td>
