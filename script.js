@@ -236,7 +236,11 @@ function parseInvoices(text) {
       /^(\d{6,})\s+(.+?)\s+([\d.]+)\s*(?:[^\d\n]*?(?:رقم البطاقة|Card Number)\s*[:：]?\s*(\d{3,4}))?/i;
 
    for (let i = 0; i < lines.length; i++) {
-      const L = lines[i];
+      let L = lines[i];
+
+      // إزالة المحارف الخفية (RTL/LTR Marks)
+      L = L.replace(/[\u200F\u200E\u202A\u202B\u202C\u202D\u202E]/g, "");
+
       let m = L.match(singleLineRegex);
       if (m) {
          const invId = m[1];
@@ -432,7 +436,13 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
 /* ======================
    عرض نتائج المقارنة (لا تمسح الحاوية داخليًا)
    ====================== */
-function renderCompareResults(results, records, invoices, branchAccountId, branchName) {
+function renderCompareResults(
+   results,
+   records,
+   invoices,
+   branchAccountId,
+   branchName
+) {
    const container = document.getElementById("compare-results");
    // لا نمسح الحاوية هنا؛ قرار المسح يتم في المتحكم (زر المقارنة)
    if (!results.length) {
@@ -649,12 +659,11 @@ document.getElementById("compare-btn").addEventListener("click", () => {
       options,
       branchAccountId
    );
-renderCompareResults(
-   results,
-   terminal.transactions,
-   filteredInvoices,
-   branchAccountId,
-   branch ? branch.name : "-"
-);
-
+   renderCompareResults(
+      results,
+      terminal.transactions,
+      filteredInvoices,
+      branchAccountId,
+      branch ? branch.name : "-"
+   );
 });
