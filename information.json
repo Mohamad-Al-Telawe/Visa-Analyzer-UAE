@@ -1,187 +1,187 @@
 {
   "ورقة1": [
   {
-    "name": "الظيت سيتي سنتر",
+    "name": "اCity Centre Al Dhait BR",
     "Terminal ID": "001000293033",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "المعيريض",
+    "name": "Al Mairid BR",
     "Terminal ID": "001000293041",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "عجمان السوق الصيني",
+    "name": "AJMAN CHINA MALL BR",
     "Terminal ID": "001000293058",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "أم القيوين",
+    "name": "Om Alqeween BR",
     "Terminal ID": "001000293306",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "رأس الخيمة",
+    "name": "RAS ALKHIMA BR",
     "Terminal ID": "001000293520",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "الفوعة",
+    "name": "Al Foah Mall",
     "Terminal ID": "001000293538",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "اليحر2",
+    "name": "Alyaher Br2",
     "Terminal ID": "001000293546",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "البوادي مول",
+    "name": "Bawadi Mall",
     "Terminal ID": "001000293553",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "عجمان الصناعية",
+    "name": "AJMAN INDUSTRIAL AREA BR",
     "Terminal ID": "001000293751",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "عجمان سيتي سنتر",
+    "name": "City Centre Ajman",
     "Terminal ID": "001000293769",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "سيتي مول ",
+    "name": "Al Dhafra Mall",
     "Terminal ID": "001000295533",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "مدينة زايد",
+    "name": "MADINAT ZAYED BR",
     "Terminal ID": "001000295566",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "الإتحاد مول",
+    "name": "ETIHAD Mall BR",
     "Terminal ID": "001000295582",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "بوابة الشرق",
+    "name": "Bawabat Al Sharq Mall",
     "Terminal ID": "001000295590",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "دبي مول",
+    "name": "Dubai Mall BR",
     "Terminal ID": "001000295608",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "دير فيلدز",
+    "name": "Deerfields Mall Br",
     "Terminal ID": "001000295624",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "بن سوقات",
+    "name": "BIN SOUQAT BR",
     "Terminal ID": "001000295632",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "الزاهية سيتي سنتر",
+    "name": "City Center Al Zahia BR",
     "Terminal ID": "001000295640",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "مصدر مول",
+    "name": "My City Centre Masdar",
     "Terminal ID": "001000295657",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "الذيد",
+    "name": "Al Dhaid BR",
     "Terminal ID": "001000295665",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "دلما مول",
+    "name": "Dalma Mall Br",
     "Terminal ID": "001000295673",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "الرحمانية",
+    "name": "Al Rahmaniya BR",
     "Terminal ID": "001000295681",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "السيوح",
+    "name": "Al Souiah Mall BR",
     "Terminal ID": "001000295699",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "سوق العين المركزي",
+    "name": "Central market Al Ain",
     "Terminal ID": "001000295707",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "كلباء2",
+    "name": "Kalba BR",
     "Terminal ID": "001000295715",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "خورفكان",
+    "name": "KHOREFKAN BR",
     "Terminal ID": "001000295723",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "البرشاء مول",
+    "name": "Al Barsha Mall BR",
     "Terminal ID": "001000295731",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "أسواق المزهر",
+    "name": "Aswaaq Al Mizhar",
     "Terminal ID": "001000295749",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "متاجر الجرينة",
+    "name": "Matajer AlJuraina BR",
     "Terminal ID": "001000295756",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "الورقاء مول",
+    "name": "Al Warqaa Mall Br",
     "Terminal ID": "001000295764",
     "account id": "0",
     "bank account": "0"
   },
   {
-    "name": "دبا الفجيرة",
+    "name": "Dibba Al fujairah",
     "Terminal ID": "001000295780",
     "account id": "0",
     "bank account": "0"
