@@ -572,7 +572,7 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
       invoices.forEach((inv, i) => {
          if (usedInvoices.has(i)) return;
          results.push({
-            type: "فاتورة غير موجودة ❌",
+            type: "فاتورة دون كشف ❌",
             invoiceIndex: i,
             recordIndex: null,
             invoice: inv,
@@ -583,7 +583,7 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
       records.forEach((r, j) => {
          if (usedRecords.has(j)) return;
          results.push({
-            type: "سجل غير مطابق ⚠️",
+            type: "كشف دون فاتورة ⚠️",
             invoiceIndex: null,
             recordIndex: j,
             invoice: null,
@@ -595,8 +595,8 @@ function compareInvoicesToRecords(invoices, records, options, branchAccountId) {
          "مطابقة تامة ✅": 0,
          "اختلاف في القيمة ⚠️": 1,
          "اختلاف في رقم البطاقة ⚠️": 2,
-         "فاتورة غير موجودة ❌": 3,
-         "سجل غير مطابق ⚠️": 4,
+         "فاتورة دون كشف ❌": 3,
+         "كشف دون فاتورة ⚠️": 4,
       };
       return (rank[a.type] || 9) - (rank[b.type] || 9);
    });
