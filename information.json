@@ -1,0 +1,208 @@
+{
+  "ورقة1": [
+   {
+    "name": "City Centre Al Dhait BR",
+    "Terminal ID": "001000293033",
+    "account id": "13308",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Mairid BR",
+    "Terminal ID": "001000293041",
+    "account id": "13309",
+    "bank account": "132311"
+  },
+  {
+    "name": "AJMAN CHINA MALL BR",
+    "Terminal ID": "001000293058",
+    "account id": "13319",
+    "bank account": "132311"
+  },
+  {
+    "name": "Om Alqeween BR",
+    "Terminal ID": "001000293306",
+    "account id": "13320",
+    "bank account": "132311"
+  },
+  {
+    "name": "RAS ALKHIMA BR",
+    "Terminal ID": "001000293520",
+    "account id": "13307",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Foah Mall",
+    "Terminal ID": "001000293538",
+    "account id": "13325",
+    "bank account": "132311"
+  },
+  {
+    "name": "Alyaher Br2",
+    "Terminal ID": "001000293546",
+    "account id": "13326",
+    "bank account": "132311"
+  },
+  {
+    "name": "Bawadi Mall",
+    "Terminal ID": "001000293553",
+    "account id": "13331",
+    "bank account": "132311"
+  },
+  {
+    "name": "AJMAN INDUSTRIAL AREA BR",
+    "Terminal ID": "001000293751",
+    "account id": "13315",
+    "bank account": "132311"
+  },
+  {
+    "name": "City Centre Ajman",
+    "Terminal ID": "001000293769",
+    "account id": "13333",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Dhafra Mall",
+    "Terminal ID": "001000295533",
+    "account id": "13339",
+    "bank account": "132311"
+  },
+  {
+    "name": "MADINAT ZAYED BR",
+    "Terminal ID": "001000295566",
+    "account id": "13318",
+    "bank account": "132311"
+  },
+  {
+    "name": "ETIHAD Mall BR",
+    "Terminal ID": "001000295582",
+    "account id": "13303",
+    "bank account": "132311"
+  },
+  {
+    "name": "Bawabat Al Sharq Mall",
+    "Terminal ID": "001000295590",
+    "account id": "13338",
+    "bank account": "132311"
+  },
+  {
+    "name": "Dubai Mall BR",
+    "Terminal ID": "001000295608",
+    "account id": "13329",
+    "bank account": "132311"
+  },
+  {
+    "name": "Deerfields Mall Br",
+    "Terminal ID": "001000295624",
+    "account id": "13316",
+    "bank account": "132311"
+  },
+  {
+    "name": "BIN SOUQAT BR",
+    "Terminal ID": "001000295632",
+    "account id": "13302",
+    "bank account": "132311"
+  },
+  {
+    "name": "City Center Al Zahia BR",
+    "Terminal ID": "001000295640",
+    "account id": "13314",
+    "bank account": "132311"
+  },
+  {
+    "name": "My City Centre Masdar",
+    "Terminal ID": "001000295657",
+    "account id": "13301",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Dhaid BR",
+    "Terminal ID": "001000295665",
+    "account id": "13313",
+    "bank account": "132311"
+  },
+  {
+    "name": "Dalma Mall Br",
+    "Terminal ID": "001000295673",
+    "account id": "13317",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Rahmaniya BR",
+    "Terminal ID": "001000295681",
+    "account id": "13330",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Souiah Mall BR",
+    "Terminal ID": "001000295699",
+    "account id": "13336",
+    "bank account": "132311"
+  },
+  {
+    "name": "Central market Al Ain",
+    "Terminal ID": "001000295707",
+    "account id": "13334",
+    "bank account": "132311"
+  },
+  {
+    "name": "Kalba BR",
+    "Terminal ID": "001000295715",
+    "account id": "13310",
+    "bank account": "132311"
+  },
+  {
+    "name": "KHOREFKAN BR",
+    "Terminal ID": "001000295723",
+    "account id": "13311",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Barsha Mall BR",
+    "Terminal ID": "001000295731",
+    "account id": "13304",
+    "bank account": "132311"
+  },
+  {
+    "name": "Aswaaq Al Mizhar",
+    "Terminal ID": "001000295749",
+    "account id": "13327",
+    "bank account": "132311"
+  },
+  {
+    "name": "Matajer AlJuraina BR",
+    "Terminal ID": "001000295756",
+    "account id": "13312",
+    "bank account": "132311"
+  },
+  {
+    "name": "Al Warqaa Mall Br",
+    "Terminal ID": "001000295764",
+    "account id": "13305",
+    "bank account": "132311"
+  },
+  {
+    "name": "Dibba Al fujairah",
+    "Terminal ID": "001000295780",
+    "account id": "13322",
+    "bank account": "132311"
+  },
+  {
+    "name": "Reem Mall",
+    "Terminal ID": "001000311447",
+    "account id": "13323",
+    "bank account": "132311"
+  },
+  {
+    "name": "Fujera BR",
+    "Terminal ID": "001000311454",
+    "account id": "13321",
+    "bank account": "132311"
+  },
+  {
+    "name": "NAEEM CITY CENTER",
+    "Terminal ID": "001000311462",
+    "account id": "13306",
+    "bank account": "132311"
+  }
+  ]
+}
