@@ -686,16 +686,37 @@ const options = {
 });
 
 /* ======================
-   عرض نتائج المقارنة مقسمة حسب التيرمينال (مع ربط الفواتير المفقودة بالفرع)
+   وظائف إدارة الأخطاء (Local Storage) داخل الصفحة الرئيسية
+   ====================== */
+function loadErrors() {
+    try { return JSON.parse(localStorage.getItem("visaErrors") || "[]"); } 
+    catch { return []; }
+}
+
+function saveErrors(list) {
+    localStorage.setItem("visaErrors", JSON.stringify(list));
+}
+
+function addErrorRecord(obj) {
+    const list = loadErrors();
+    // تجنب التكرار بناء على رقم الفاتورة والبطاقة
+    const exists = list.find(e => e.invoiceId === obj.invoiceId && e.cardNumber === obj.cardNumber);
+    if (exists) {
+        alert("هذا الخطأ مسجل بالفعل!");
+        return;
+    }
+    list.push(obj);
+    saveErrors(list);
+    alert("✅ تم ترحيل الخطأ إلى صفحة الأخطاء بنجاح");
+}
+
+/* ======================
+   عرض نتائج المقارنة (مع زر ذكي يتحقق من الحالة)
    ====================== */
 function renderCompareResults(results) {
    const container = document.getElementById("compare-results");
-   if (!container) {
-      console.error("🔴 [COMPARE] compare-results container NOT FOUND");
-      return;
-   }
+   if (!container) return;
 
-   console.log("🟢 [COMPARE] Rendering grouped result tables…");
    container.innerHTML = ""; 
 
    if (results.length === 0) {
@@ -703,36 +724,27 @@ function renderCompareResults(results) {
       return;
    }
 
-   // 1. تجميع النتائج حسب التيرمينال
+   // تحميل الأخطاء الحالية لمعرفة ما تم ترحيله مسبقاً
+   const currentErrors = loadErrors();
+
+   // 1. تجميع النتائج
    const groups = {};
    const unknownKey = "UNMATCHED_INVOICES"; 
 
    results.forEach((r) => {
       let key = unknownKey;
-
-      // الحالة الأولى: يوجد سجل بنكي (استخدم تيرمينال البنك مباشرة)
       if (r.record && r.record.terminal) {
          key = r.record.terminal;
-      } 
-      // الحالة الثانية: لا يوجد سجل بنكي (فاتورة مفقودة) لكن يوجد اسم فرع في الفاتورة
-      else if (r.invoice && r.invoice.branchName) {
-         // نبحث عن اسم الفرع في ملف المعلومات لنجد رقم التيرمينال المقابل
-         // نقوم بتنظيف النصوص (trim) لضمان دقة البحث
+      } else if (r.invoice && r.invoice.branchName) {
          const foundBranch = branchInfo.find(b => 
             b.name && r.invoice.branchName && 
             b.name.trim() === r.invoice.branchName.trim()
          );
-
          if (foundBranch && foundBranch["Terminal ID"]) {
-            key = foundBranch["Terminal ID"]; // وجدنا التيرمينال المرتبط بهذا الاسم
-         } else {
-            console.warn(`⚠️ لم يتم العثور على تيرمينال لاسم الفرع: ${r.invoice.branchName}`);
+            key = foundBranch["Terminal ID"];
          }
       }
-
-      if (!groups[key]) {
-         groups[key] = [];
-      }
+      if (!groups[key]) groups[key] = [];
       groups[key].push(r);
    });
 
@@ -746,15 +758,13 @@ function renderCompareResults(results) {
    keys.forEach((termId) => {
       const groupResults = groups[termId];
       
-      let titleText = "";
-      if (termId === unknownKey) {
-          titleText = `⚠️ فواتير أو سجلات مجهولة المصدر (${groupResults.length})`;
-      } else {
-          // جلب اسم الفرع للعرض
-          const branch = branchInfo.find(b => String(b["Terminal ID"]).slice(-4) === String(termId).slice(-4));
-          const branchName = branch ? branch.name : "فرع غير معروف";
-          titleText = `🏢 ${branchName} - (Terminal: ${termId}) - العدد: ${groupResults.length}`;
-      }
+      const branch = branchInfo.find(b => String(b["Terminal ID"]).slice(-4) === String(termId).slice(-4));
+      const branchName = branch ? branch.name : (termId === unknownKey ? "غير معروف" : "فرع غير معروف");
+      const accountId = branch ? branch["account id"] : "";
+
+      let titleText = termId === unknownKey 
+          ? `⚠️ فواتير أو سجلات مجهولة المصدر (${groupResults.length})` 
+          : `🏢 ${branchName} - (Terminal: ${termId}) - العدد: ${groupResults.length}`;
 
       const section = document.createElement("div");
       section.className = "terminal-section";
@@ -764,38 +774,60 @@ function renderCompareResults(results) {
       header.style.backgroundColor = termId === unknownKey ? "#e74c3c" : "#2c3e50";
       header.style.color = "#fff";
       header.style.padding = "10px";
-      header.style.borderRadius = "5px 5px 0 0";
-      header.style.margin = "0";
       header.textContent = titleText;
       section.appendChild(header);
 
       const tableHTML = `
-        <table class="results-table" style="width:100%; border-collapse: collapse; margin-top:0;">
+        <table class="results-table" style="width:100%; border-collapse: collapse;">
             <thead>
                 <tr style="background-color: #f2f2f2;">
-                    <th style="padding:8px; border:1px solid #ddd;">النوع</th>
-                    <th style="padding:8px; border:1px solid #ddd;">رقم الفاتورة</th>
-                    <th style="padding:8px; border:1px solid #ddd;">رقم البطاقة</th>
-                    <th style="padding:8px; border:1px solid #ddd;">قيمة الفاتورة</th>
-                    <th style="padding:8px; border:1px solid #ddd;">قيمة السجل</th>
+                    <th>النوع</th>
+                    <th>رقم الفاتورة</th>
+                    <th>رقم البطاقة</th>
+                    <th>قيمة الفاتورة</th>
+                    <th>قيمة السجل</th>
+                    <th>إجراءات</th>
                 </tr>
             </thead>
             <tbody>
-                ${groupResults.map(r => {
-                    let rowColor = "";
-                    // تلوين الصفوف حسب الحالة
-                    if (r.type.includes("مطابقة")) rowColor = "#e8f5e9"; 
-                    else if (r.type.includes("غير موجودة")) rowColor = "#ffebee"; // أحمر للفواتير المفقودة
-                    else if (r.type.includes("سجل غير مطابق")) rowColor = "#e3f2fd"; // أزرق للزيادة في البنك
-                    else rowColor = "#fff3e0"; 
+                ${groupResults.map((r) => {
+                    let rowColor = r.type.includes("مطابقة") ? "#e8f5e9" : (r.type.includes("غير موجودة") ? "#ffebee" : "#fff3e0");
+                    
+                    const invId = r.invoice?.invoiceId || "-";
+                    const cardNum = r.invoice?.cardNumber || r.record?.cardNumber || "-";
+                    const invAmt = r.invoice?.amount || 0;
+                    const recAmt = r.record?.amount || 0;
+                    const bName = branchName; 
+                    const bAcc = accountId;
+
+                    // التحقق هل هذا العنصر تم ترحيله مسبقاً؟
+                    const isAlreadySaved = currentErrors.some(e => e.invoiceId === invId && e.cardNumber === cardNum);
+
+                    let btnHTML = "";
+                    if (!r.type.includes("مطابقة")) {
+                        if (isAlreadySaved) {
+                             btnHTML = `<button disabled style="background:#95a5a6; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:not-allowed;">تم الترحيل ✅</button>`;
+                        } else {
+                             // لاحظ تمرير 'this' كأول باراميتر
+                             btnHTML = `
+                                <button onclick='addErrorFromRow(this, "${invId}", "${cardNum}", ${invAmt}, ${recAmt}, "${bName}", "${bAcc}")' 
+                                        style="background:#e67e22; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px;">
+                                    ترحيل للأخطاء
+                                </button>
+                             `;
+                        }
+                    } else {
+                        btnHTML = `<span style="color:green; font-weight:bold;">✅</span>`;
+                    }
 
                     return `
                     <tr style="background-color: ${rowColor};">
-                        <td style="padding:8px; border:1px solid #ddd;">${r.type}</td>
-                        <td style="padding:8px; border:1px solid #ddd;">${r.invoice?.invoiceId || "-"}</td>
-                        <td style="padding:8px; border:1px solid #ddd;">${r.invoice?.cardNumber || r.record?.cardNumber || "-"}</td>
-                        <td style="padding:8px; border:1px solid #ddd;">${r.invoice?.amount ?? "-"}</td>
-                        <td style="padding:8px; border:1px solid #ddd;">${r.record?.amount ?? "-"}</td>
+                        <td>${r.type}</td>
+                        <td>${invId}</td>
+                        <td>${cardNum}</td>
+                        <td>${invAmt}</td>
+                        <td>${recAmt}</td>
+                        <td style="text-align:center;">${btnHTML}</td>
                     </tr>
                     `;
                 }).join("")}
@@ -807,3 +839,38 @@ function renderCompareResults(results) {
       container.appendChild(section);
    });
 }
+
+// دالة الترحيل المعدلة لتستقبل الزر وتغير لونه
+window.addErrorFromRow = function(btnElement, invId, cardNum, invAmt, recAmt, bName, bAcc) {
+    // محاولة الحفظ
+    const list = loadErrors();
+    const exists = list.find(e => e.invoiceId === invId && e.cardNumber === cardNum);
+    
+    if (exists) {
+        alert("هذا الخطأ مسجل بالفعل!");
+        // إذا كان موجوداً مسبقاً (ربما من جلسة أخرى)، نحدث الزر فقط
+        btnElement.innerText = "تم الترحيل ✅";
+        btnElement.style.background = "#95a5a6";
+        btnElement.style.cursor = "not-allowed";
+        btnElement.disabled = true;
+        return;
+    }
+
+    // إضافة الجديد
+    list.push({
+        invoiceId: invId,
+        cardNumber: cardNum,
+        invoiceValue: invAmt,
+        reportValue: recAmt,
+        branchName: bName,
+        branchAccountId: bAcc,
+        errorType: 0
+    });
+    saveErrors(list);
+
+    // تحديث شكل الزر فوراً ليعرف المستخدم أنه ضغطه
+    btnElement.innerText = "تم الترحيل ✅";
+    btnElement.style.background = "#95a5a6";
+    btnElement.style.cursor = "not-allowed";
+    btnElement.disabled = true;
+};
