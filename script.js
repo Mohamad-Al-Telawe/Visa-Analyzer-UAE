@@ -68,25 +68,25 @@ document.getElementById("analyze-btn").addEventListener("click", () => {
 /* ======================
    دالة تحليل كشف الإمارات مع تتبُّع مفصّل
    ====================== */
-/* ======================
-   دالة تحليل كشف الإمارات مع تتبُّع مفصّل
-   ====================== */
 function parseMerchantReportUAE(text) {
    console.log("🔵 [DEBUG] parseMerchantReportUAE START");
-   const merchantBlocks = text.split(/^\s*MERCHANT:/m).slice(1);
+   
+   // 👇 التعديل الأول: تعديل الـ Regex ليقص الكشف سواء كان MERCHANT أو IC++ DISABLED MERCHANT
+   const merchantBlocks = text.split(/^.*?\bMERCHANT:/m).slice(1);
    console.log("🔵 [DEBUG] merchantBlocks found:", merchantBlocks.length);
 
    const terminals =[];
    const txRegex =
       /^(\d{12})\s+\d+\s+\d+\s+\d+\s+(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})\s+([A-Z0-9]+)\s+(\d{6}\*{6}\d{4}).*?(-?\d+\.\d+)\s+AED/;
    const altTxRegex = /^(\d{12}).*?(\d{6}\*{6}\d{4}).*?(-?\d+\.\d+)\s+AED/;
-   
-   // 👇 الإضافة الجديدة لالتقاط العمليات بدون بطاقة (مثل سطر CRADJ DccPay)
    const adjRegex = /^(\d{12})\s+\d+\s+(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})\s+([A-Z]+)\s+([A-Za-z]+).*?(-?\d+\.\d+)\s+AED/i;
+
+   // 👇 متغير لمراقبة وجود سجلات DccPay
+   let foundDccPay = false;
 
    merchantBlocks.forEach((block, idx) => {
       try {
-         console.log(`\n🔶[BLOCK ${idx}] length: ${block.length}`);
+         console.log(`\n🔶 [BLOCK ${idx}] length: ${block.length}`);
          const lines = block.replace(/\r/g, "").split("\n");
          console.log(
             `🔶 [BLOCK ${idx}] lines: ${lines.length} — preview:`,
@@ -151,7 +151,6 @@ function parseMerchantReportUAE(text) {
                continue;
             }
 
-            // 👇 بداية الإضافة لدعم معاملات التعديل والمكافآت (بدون رقم بطاقة)
             const adj = line.match(adjRegex);
             if (adj) {
                const terminalFromLine = adj[1];
@@ -161,8 +160,11 @@ function parseMerchantReportUAE(text) {
                   day = adj[3],
                   hour = adj[4],
                   minute = adj[5];
-               const tranType = adj[6] + " " + adj[7]; // لدمج الكلمتين مثل "CRADJ DccPay"
+               const tranType = adj[6] + " " + adj[7]; 
                const amount = parseFloat(adj[8]);
+
+               // تسجيل أنه تم العثور على حركة DccPay ليتم التنبيه بها لاحقاً
+               foundDccPay = true;
 
                txs.push({
                   terminal: terminalFromLine,
@@ -171,15 +173,13 @@ function parseMerchantReportUAE(text) {
                   hour,
                   minute,
                   type: tranType,
-                  cardNumber: "DccPay", // نعطيه هذا الاسم بدلاً من الأرقام لتمييزه
+                  cardNumber: "DccPay", 
                   amount,
                   rawLine: line,
                });
                continue;
             }
-            // 👆 نهاية الإضافة
 
-            // تجميع احتمالات الأرقام (قد تكون سطر Total أو توالي أرقام)
             const nums = line.match(/-?\d+\.\d+/g);
             if (nums && /AED/i.test(line)) {
                totalCandidates.push({ lineIndex: i, line, nums });
@@ -187,10 +187,9 @@ function parseMerchantReportUAE(text) {
          } // نهاية حلقة الأسطر
 
          console.log(
-            `🔶[BLOCK ${idx}] txs found: ${txs.length}, totalCandidates: ${totalCandidates.length}, terminalIdForBlock: ${terminalIdForBlock}`
+            `🔶 [BLOCK ${idx}] txs found: ${txs.length}, totalCandidates: ${totalCandidates.length}, terminalIdForBlock: ${terminalIdForBlock}`
          );
 
-         // استخراج الـ Total من الأسفل للأعلى
          let gross = null,
             net = null;
          for (let j = lines.length - 1; j >= 0; j--) {
@@ -227,7 +226,6 @@ function parseMerchantReportUAE(text) {
          }
 
          if (gross === null && net === null && totalCandidates.length > 0) {
-            // كخطة احتياطية: استخدم أول مرشح يوجد به قيمتين
             const cand = totalCandidates.find(
                (c) => c.nums && c.nums.length >= 2
             );
@@ -255,7 +253,7 @@ function parseMerchantReportUAE(text) {
          }
 
          console.log(
-            `🔶 [BLOCK ${idx}] pushing terminal: ${terminalIdForBlock}, txs: ${txs.length}, gross:${gross}, net:${net}`
+            `🔶[BLOCK ${idx}] pushing terminal: ${terminalIdForBlock}, txs: ${txs.length}, gross:${gross}, net:${net}`
          );
          terminals.push({
             terminalId: terminalIdForBlock || "UNKNOWN",
@@ -266,7 +264,14 @@ function parseMerchantReportUAE(text) {
       } catch (blockErr) {
          console.error(`🔴 [ERROR] while processing block ${idx}:`, blockErr);
       }
-   }); // end blocks loop
+   });
+
+   // 👇 التعديل الثاني: إظهار رسالة تنبيه إذا تم التقاط DccPay
+   if (foundDccPay) {
+      setTimeout(() => {
+         alert("⚠️ تنبيه: يحتوي هذا الكشف على سجلات DccPay (مكافآت أو تسويات بدون رقم بطاقة). وقد تمت إضافتها للإجماليات بنجاح.");
+      }, 500); // تأخير نصف ثانية لضمان ظهور التنبيه بعد بناء الجدول لتجربة مستخدم أفضل
+   }
 
    console.log(
       "🔵 [DEBUG] parseMerchantReportUAE END — terminals:",
