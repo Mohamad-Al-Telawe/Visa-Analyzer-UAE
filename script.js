@@ -68,19 +68,25 @@ document.getElementById("analyze-btn").addEventListener("click", () => {
 /* ======================
    دالة تحليل كشف الإمارات مع تتبُّع مفصّل
    ====================== */
+/* ======================
+   دالة تحليل كشف الإمارات مع تتبُّع مفصّل
+   ====================== */
 function parseMerchantReportUAE(text) {
    console.log("🔵 [DEBUG] parseMerchantReportUAE START");
    const merchantBlocks = text.split(/^\s*MERCHANT:/m).slice(1);
    console.log("🔵 [DEBUG] merchantBlocks found:", merchantBlocks.length);
 
-   const terminals = [];
+   const terminals =[];
    const txRegex =
       /^(\d{12})\s+\d+\s+\d+\s+\d+\s+(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})\s+([A-Z0-9]+)\s+(\d{6}\*{6}\d{4}).*?(-?\d+\.\d+)\s+AED/;
    const altTxRegex = /^(\d{12}).*?(\d{6}\*{6}\d{4}).*?(-?\d+\.\d+)\s+AED/;
+   
+   // 👇 الإضافة الجديدة لالتقاط العمليات بدون بطاقة (مثل سطر CRADJ DccPay)
+   const adjRegex = /^(\d{12})\s+\d+\s+(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})\s+([A-Z]+)\s+([A-Za-z]+).*?(-?\d+\.\d+)\s+AED/i;
 
    merchantBlocks.forEach((block, idx) => {
       try {
-         console.log(`\n🔶 [BLOCK ${idx}] length: ${block.length}`);
+         console.log(`\n🔶[BLOCK ${idx}] length: ${block.length}`);
          const lines = block.replace(/\r/g, "").split("\n");
          console.log(
             `🔶 [BLOCK ${idx}] lines: ${lines.length} — preview:`,
@@ -89,7 +95,7 @@ function parseMerchantReportUAE(text) {
 
          let terminalIdForBlock = null;
          const txs = [];
-         let totalCandidates = [];
+         let totalCandidates =[];
 
          for (let i = 0; i < lines.length; i++) {
             const rawLine = lines[i];
@@ -145,6 +151,34 @@ function parseMerchantReportUAE(text) {
                continue;
             }
 
+            // 👇 بداية الإضافة لدعم معاملات التعديل والمكافآت (بدون رقم بطاقة)
+            const adj = line.match(adjRegex);
+            if (adj) {
+               const terminalFromLine = adj[1];
+               if (!terminalIdForBlock) terminalIdForBlock = terminalFromLine;
+
+               const month = adj[2],
+                  day = adj[3],
+                  hour = adj[4],
+                  minute = adj[5];
+               const tranType = adj[6] + " " + adj[7]; // لدمج الكلمتين مثل "CRADJ DccPay"
+               const amount = parseFloat(adj[8]);
+
+               txs.push({
+                  terminal: terminalFromLine,
+                  month,
+                  day,
+                  hour,
+                  minute,
+                  type: tranType,
+                  cardNumber: "DccPay", // نعطيه هذا الاسم بدلاً من الأرقام لتمييزه
+                  amount,
+                  rawLine: line,
+               });
+               continue;
+            }
+            // 👆 نهاية الإضافة
+
             // تجميع احتمالات الأرقام (قد تكون سطر Total أو توالي أرقام)
             const nums = line.match(/-?\d+\.\d+/g);
             if (nums && /AED/i.test(line)) {
@@ -153,7 +187,7 @@ function parseMerchantReportUAE(text) {
          } // نهاية حلقة الأسطر
 
          console.log(
-            `🔶 [BLOCK ${idx}] txs found: ${txs.length}, totalCandidates: ${totalCandidates.length}, terminalIdForBlock: ${terminalIdForBlock}`
+            `🔶[BLOCK ${idx}] txs found: ${txs.length}, totalCandidates: ${totalCandidates.length}, terminalIdForBlock: ${terminalIdForBlock}`
          );
 
          // استخراج الـ Total من الأسفل للأعلى
