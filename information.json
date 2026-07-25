@@ -203,6 +203,12 @@
     "Terminal ID": "001000311462",
     "account id": "13306",
     "bank account": "132311"
+  },
+  {
+    "name": "Website Br",
+    "Terminal ID": "000008280877",
+    "account id": "13340",
+    "bank account": "132311"
   }
   ]
 }
